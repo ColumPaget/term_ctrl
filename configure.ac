@@ -24,7 +24,7 @@ then
 	AC_CHECK_LIB(ssl,SSL_library_init,,)
 	AC_CHECK_LIB(crypto,EVP_CIPHER_CTX_init,,)
 else
-  AC_SUBST(LIBUSEFUL_BUNDLED,"libUseful/libUseful.a")
+  AC_SUBST(LIBUSEFUL_BUNDLED,"libUseful-4/libUseful.a")
   AC_CONFIG_SUBDIRS([libUseful])
 fi
 

@@ -197,7 +197,7 @@ m4trace:configure.ac:25: -1- AH_OUTPUT([HAVE_LIBCRYPTO], [/* Define to 1 if you 
 @%:@undef HAVE_LIBCRYPTO])
 m4trace:configure.ac:25: -1- AC_DEFINE_TRACE_LITERAL([HAVE_LIBCRYPTO])
 m4trace:configure.ac:25: -1- m4_pattern_allow([^HAVE_LIBCRYPTO$])
-m4trace:configure.ac:27: -1- AC_SUBST([LIBUSEFUL_BUNDLED], ["libUseful/libUseful.a"])
+m4trace:configure.ac:27: -1- AC_SUBST([LIBUSEFUL_BUNDLED], ["libUseful-4/libUseful.a"])
 m4trace:configure.ac:27: -1- AC_SUBST_TRACE([LIBUSEFUL_BUNDLED])
 m4trace:configure.ac:27: -1- m4_pattern_allow([^LIBUSEFUL_BUNDLED$])
 m4trace:configure.ac:28: -1- AC_CONFIG_SUBDIRS([libUseful])

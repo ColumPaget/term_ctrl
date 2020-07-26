@@ -11,8 +11,8 @@ sysconfdir=@sysconfdir@
 all: $(OBJ) main.c $(BUNDLED_LIBS)
 	$(CC) $(FLAGS) -o term_ctrl main.c $(OBJ) $(LIBS) $(BUNDLED_LIBS) 
 
-libUseful/libUseful.a: 
-	$(MAKE) -C libUseful
+libUseful-4/libUseful.a: 
+	$(MAKE) -C libUseful-4
 
 install:
 	mkdir -p $(DESTDIR)$(bindir)

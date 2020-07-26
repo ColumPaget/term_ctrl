@@ -1,7 +1,7 @@
 CC=gcc
 OBJ=
 FLAGS=-g -DUSE_XATTR=1 -D_FILE_OFFSET_BITS=64 $(CFLAGS)
-BUNDLED_LIBS=libUseful/libUseful.a
+BUNDLED_LIBS=libUseful-4/libUseful.a
 LIBS=
 prefix=/usr/local
 exec_prefix=${prefix}
@@ -11,8 +11,8 @@ sysconfdir=${prefix}/etc
 all: $(OBJ) main.c $(BUNDLED_LIBS)
 	$(CC) $(FLAGS) -o term_ctrl main.c $(OBJ) $(LIBS) $(BUNDLED_LIBS) 
 
-libUseful/libUseful.a: 
-	$(MAKE) -C libUseful
+libUseful-4/libUseful.a: 
+	$(MAKE) -C libUseful-4
 
 install:
 	mkdir -p $(DESTDIR)$(bindir)
