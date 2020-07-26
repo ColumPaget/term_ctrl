@@ -7,7 +7,6 @@ prefix=/usr/local
 exec_prefix=${prefix}
 bindir=${exec_prefix}/bin
 sysconfdir=${prefix}/etc
-DEFAULT_CONFIG_PATH=$(sysconfdir)/filewatch.conf
 
 all: $(OBJ) main.c $(BUNDLED_LIBS)
 	$(CC) $(FLAGS) -o term_ctrl main.c $(OBJ) $(LIBS) $(BUNDLED_LIBS) 

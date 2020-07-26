@@ -115,4 +115,59 @@ ask-password    print a query string and read an input string in response, but e
 xtitle          set title of xterm compatible terminal emulators.
 ```
 
+TILDE SEQUENCES
+===============
+
+term_ctrl recognizes the following libuseful tilde-escape-sequences:
+
+```
+~~        output the tilde character '~'
+~r        switch color to red
+~R        switch background to red
+~g        switch color to green
+~G        switch background to green
+~b        switch color to blue
+~B        switch background to blue
+~n        switch color to black ('night' or 'noir')
+~N        switch background to black ('night' or 'noir')
+~y        switch color to yellow
+~Y        switch background to yellow
+~m        switch color to magenta
+~M        switch background to magenta
+~c        switch color to cyan
+~C        switch background to cyan
+~e        switch to bold text
+~i        switch to inverse text
+~u        switch to underlined text
+~<        clear to start of line
+~>        clear to end of line
+~0        reset all attributes (return to normal text)
+~Uxxxx    output a unicode character (xxxx is the 4-digit unicode name)
+~:name:   output a unicode character using a name from the unicode names file 
+```
+
+so, for example
+
+```
+term_ctrl "~y~RYellow text on a red background~0"
+```
+
+SLASH SEQUENCES
+===============
+
+term_ctrl recognizes the following slash-escape-sequences
+
+```
+  \\      backslash
+  \a      alert (BEL)
+  \b      backspace
+  \e      escape
+  \f      form feed
+  \n      new line
+  \r      carriage return
+  \t      horizontal tab
+  \0NNN   byte with octal value NNN (1 to 3 digits)
+  \xHH    byte with hexadecimal value HH (1 to 2 digits)
+```
+
 
