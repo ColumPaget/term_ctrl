@@ -27,6 +27,7 @@ then
 else
   AC_SUBST(LIBUSEFUL_BUNDLED,"libUseful-4/libUseful.a")
   AC_CONFIG_SUBDIRS([libUseful])
+  AC_DEFINE([HAVE_TERMCONSUMECHAR])
 fi
 
 AC_PROG_CC 

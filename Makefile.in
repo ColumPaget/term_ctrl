@@ -1,6 +1,6 @@
 CC=@CC@
 OBJ=
-FLAGS=-g -DUSE_XATTR=1 -D_FILE_OFFSET_BITS=64 $(CFLAGS)
+FLAGS=-g -DUSE_XATTR=1 -D_FILE_OFFSET_BITS=64 @CFLAGS@ @DEFS@
 BUNDLED_LIBS=@LIBUSEFUL_BUNDLED@
 LIBS=@LIBS@
 prefix=@prefix@
@@ -18,7 +18,10 @@ install:
 	mkdir -p $(DESTDIR)$(bindir)
 
 clean:
-	rm -f *.o */*.o */*.so */*.a
+	$(MAKE) -C libUseful-4 clean
+	-rm -f *.o term_ctrl
+	-rm config.log config.status 
+	-rm -r autom4te.cache config.cache
 
 test:
 	echo "no tests"
