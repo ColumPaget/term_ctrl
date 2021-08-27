@@ -190,6 +190,7 @@ printf("\n");
 
 
 
+#ifdef HAVE_TERMCONSUMECHAR
 void QuoteForShellPrompt(char *Input)
 {
 char *Str=NULL, *Output=NULL;
@@ -226,6 +227,7 @@ printf("%s\n", Output);
 
 Destroy(Str);
 }
+#endif
 
 
 int main(int argc, char *argv[])
@@ -257,7 +259,11 @@ Cmd->OutputStr=CopyStr(Cmd->OutputStr, Tempstr);
 switch (Cmd->cmd)
 {
 case TERMCTRL_TITLE:
+#ifdef XtermSetTitle
 	XtermSetTitle(Term, Cmd->OutputStr);
+#else
+	fprintf(stderr, "ERROR: libUseful version too old for support XtermSetTitle\n");
+#endif
 break;
 
 case TERMCTRL_GETCH:
@@ -284,7 +290,11 @@ case TERMCTRL_HELP:
 break;
 
 case TERMCTRL_SHELL_PROMPT:
-QuoteForShellPrompt(Cmd->OutputStr);
+#ifdef HAVE_TERMCONSUMECHAR
+	QuoteForShellPrompt(Cmd->OutputStr);
+#else
+	fprintf(stderr, "ERROR: libUseful version too old to support shell prompt option\n");
+#endif
 break;
 
 

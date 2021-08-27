@@ -18,6 +18,7 @@ then
   AC_SUBST(LIBUSEFUL_BUNDLED,"")
   dnl Default behavior of AC_CHECK_LIB is to add the library to the LIBS variable
   AC_CHECK_LIB(Useful,GetToken,,)
+  AC_CHECK_LIB(Useful,TerminalConsumeCharacter,[AC_DEFINE(HAVE_TERMCONSUMECHAR)])
 
 	dnl openssl isn't really needed, but if it exists and we're using a system-wide libUseful, then that will
 	dnl likely be linked against it

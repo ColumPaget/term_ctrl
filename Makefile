@@ -1,8 +1,8 @@
 CC=gcc
 OBJ=
 FLAGS=-g -DUSE_XATTR=1 -D_FILE_OFFSET_BITS=64 $(CFLAGS)
-BUNDLED_LIBS=libUseful-4/libUseful.a
-LIBS=
+BUNDLED_LIBS=
+LIBS=-lcrypto -lssl -lUseful 
 prefix=/usr/local
 exec_prefix=${prefix}
 bindir=${exec_prefix}/bin
