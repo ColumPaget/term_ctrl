@@ -298,6 +298,7 @@ int TTYParseConfig(const char *Config, int *Speed)
         else if (strcasecmp(Token,"icrlf")==0) Flags |= TTYFLAG_IN_CRLF;
         else if (strcasecmp(Token,"ocrlf")==0) Flags |= TTYFLAG_OUT_CRLF;
         else if (strcasecmp(Token,"nosig")==0) Flags |= TTYFLAG_IGNSIG;
+        else if (strcasecmp(Token,"ignsig")==0) Flags |= TTYFLAG_IGNSIG;
         else if (strcasecmp(Token,"save")==0) Flags |= TTYFLAG_SAVE;
         else if (isnum(Token) && Speed) *Speed=atoi(Token);
 
@@ -332,13 +333,13 @@ int PseudoTTYGrabUnix98(int *master, int *slave, int TermFlags)
         if (grantpt(*master)==-1) RaiseError(ERRFLAG_ERRNO, "pty", "grantpt failed");
         if (unlockpt(*master)==-1) RaiseError(ERRFLAG_ERRNO, "pty", "unlockpt failed");
         Tempstr=SetStrLen(Tempstr,100);
-				memset(Tempstr, 0, 100);
+        memset(Tempstr, 0, 100);
 
 #ifdef HAVE_PTSNAME_R
         if (ptsname_r(*master,Tempstr,100) != 0)
 #endif
 
-        Tempstr=CopyStr(Tempstr, ptsname(*master));
+            Tempstr=CopyStr(Tempstr, ptsname(*master));
         if (StrValid(Tempstr))
         {
             if ( (*slave=open(Tempstr,O_RDWR)) >-1)
@@ -356,8 +357,8 @@ int PseudoTTYGrabUnix98(int *master, int *slave, int TermFlags)
         RaiseError(ERRFLAG_ERRNO, "pty", "failed to open /dev/ptmx");
     }
 
-Destroy(Tempstr);
-return(FALSE);
+    Destroy(Tempstr);
+    return(FALSE);
 }
 
 
@@ -398,10 +399,10 @@ int PseudoTTYGrabBSD(int *master, int *slave, int TermFlags)
 
 int PseudoTTYGrab(int *master, int *slave, int TermFlags)
 {
-if (PseudoTTYGrabUnix98(master, slave, TermFlags)) return(TRUE);
-if (PseudoTTYGrabBSD(master, slave, TermFlags)) return(TRUE);
+    if (PseudoTTYGrabUnix98(master, slave, TermFlags)) return(TRUE);
+    if (PseudoTTYGrabBSD(master, slave, TermFlags)) return(TRUE);
 
-return(FALSE);
+    return(FALSE);
 }
 
 

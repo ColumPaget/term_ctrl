@@ -83,11 +83,12 @@ const char *XMLGetTag(const char *Input, char **Namespace, char **TagType, char 
         }
     }
 
-//End of Parse TagName. Strip any '/'
+//End of Parse TagName.
     wptr=*TagType;
-    if ((len > 0) && (wptr[len-1]=='/')) wptr[len-1]='\0';
+// DON'T Strip any '/' I don't know why I ever thought that was a good idea!
+   // if ((len > 0) && (wptr[len-1]=='/')) len--;
     wptr[len]='\0';
-		StrLenCacheAdd(*TagType, len);
+    StrLenCacheAdd(*TagType, len);
 
     while (isspace(*ptr)) ptr++;
 
@@ -142,9 +143,9 @@ const char *XMLGetTag(const char *Input, char **Namespace, char **TagType, char 
 
 //End of Parse TagData. Strip any '/'
     wptr=*TagData;
-    if ((len > 0) && (wptr[len-1]=='/')) wptr[len-1]='\0';
+    if ((len > 0) && (wptr[len-1]=='/')) len--;
     wptr[len]='\0';
-		StrLenCacheAdd(*TagData, len);
+    StrLenCacheAdd(*TagData, len);
 
     strlwr(*TagType);
     while (isspace(*ptr)) ptr++;
@@ -216,10 +217,10 @@ char *HTMLUnQuote(char *RetStr, const char *Data)
                 len++;
             }
             else if (*Token=='#')
-						{
+            {
                 Output=AddCharToBuffer(Output,len,strtol(Token+1,NULL,10));
                 len++;
-						}
+            }
             else if (strcmp(Token,"amp")==0)
             {
                 Output=AddCharToBuffer(Output,len,'&');
@@ -268,7 +269,7 @@ char *HTMLUnQuote(char *RetStr, const char *Data)
         }
     }
 
-		StrLenCacheAdd(Output, len);
+    StrLenCacheAdd(Output, len);
     DestroyString(Token);
 
     return(Output);

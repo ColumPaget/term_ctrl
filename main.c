@@ -1,6 +1,6 @@
 #include "libUseful-4/libUseful.h"
 
-#define VERSION "1.0"
+#define VERSION "1.1"
 
 #define TERMCTRL_PRINT 0
 #define TERMCTRL_TITLE 1
@@ -10,6 +10,7 @@
 #define TERMCTRL_ECHO   5
 #define TERMCTRL_HELP   6
 #define TERMCTRL_VERSION 7
+#define TERMCTRL_SHELL_PROMPT 8
 
 #define TERMCTRL_CLEAR 1
 #define TERMCTRL_AT 2
@@ -90,6 +91,7 @@ if (argc > 0)
 		else if (strcmp(p_arg, "-ask")==0) Cmd->cmd |= TERMCTRL_PROMPT;
 		else if (strcmp(p_arg, "-prompt")==0) Cmd->cmd |= TERMCTRL_PROMPT;
 		else if (strcmp(p_arg, "-password")==0) Cmd->cmd |= TERMCTRL_PASSWD;
+		else if (strcmp(p_arg, "-ps")==0) Cmd->cmd |= TERMCTRL_SHELL_PROMPT;
 		else if (strcmp(p_arg, "-version")==0) Cmd->cmd |= TERMCTRL_VERSION;
 		else if (strcmp(p_arg, "--version")==0) Cmd->cmd |= TERMCTRL_VERSION;
 		else if (strcmp(p_arg, "-help")==0) Cmd->cmd |= TERMCTRL_HELP;
@@ -127,6 +129,7 @@ printf("-getch         Read a single keypress and return it on stdout\n");
 printf("-ask           Write a prompt or message and read the user's reply, returning it on stdout\n");
 printf("-prompt        Write a prompt or message and read the user's reply, returning it on stdout\n");
 printf("-password      Write a prompt or message and read the user's reply without echoing that to the screen. Return the reply on stdout\n");
+printf("-ps            Write text with quoting suitable to use in a bash/shell prompt\n");
 printf("-timeout <cs>  Wait 'cs' centi-seconds for a reply (mostly useful with 'getch' to await a keypress.\n");
 printf("-t <cs>        Wait 'cs' centi-seconds for a reply (mostly useful with 'getch' to await a keypress.\n");
 printf("-u             Enable unicode support\n");
@@ -134,7 +137,7 @@ printf("-U             Disable unicode support\n");
 printf("-e             Enable support for '\' style escape sequences\n");
 printf("-E             Disable support for '\' style escape sequences\n");
 printf("-at <x> <y>    When outputing text, put it at screen co-ords x,y.\n");
-printf("-n             Suppress trailing '\n'\n");
+printf("-n             Suppress trailing '\\n'\n");
 printf("-stderr        Write output to stderr rather than to the terminal\n");
 printf("-stdout        Write output to stdout rather than to the terminal\n");
 
@@ -183,6 +186,45 @@ printf("  \\t      horizontal tab\n");
 printf("  \\0NNN   byte with octal value NNN (1 to 3 digits)\n");
 printf("  \\xHH    byte with hexadecimal value HH (1 to 2 digits)\n");
 printf("\n");
+}
+
+
+
+void QuoteForShellPrompt(char *Input)
+{
+char *Str=NULL, *Output=NULL;
+const char *ptr, *next;
+
+for (ptr=Input; *ptr != '\0'; ptr++)
+{
+  if (*ptr=='~')
+  {
+	Output=CatStr(Output, "\\\\[");
+	next=ptr;
+	TerminalConsumeCharacter(&next);
+	Output=CatStrLen(Output, ptr, next+1-ptr);
+	Output=CatStr(Output, "\\\\]");
+	ptr=next;
+  }
+  else if (*ptr=='\\') Output=CatStr(Output, "\\\\");
+  else Output=AddCharToStr(Output, *ptr);
+}
+
+Str=TerminalFormatStr(Str, Output, NULL);
+
+Output=CopyStr(Output, "");
+for (ptr=Str; *ptr != '\0'; ptr++)
+{
+	switch (*ptr)
+	{
+		case ESCAPE: Output=CatStr(Output, "\\033") ; break;
+		default: Output=AddCharToStr(Output, *ptr);
+	}
+}
+
+printf("%s\n", Output);
+
+Destroy(Str);
 }
 
 
@@ -239,6 +281,10 @@ break;
 
 case TERMCTRL_HELP:
 	PrintHelp();
+break;
+
+case TERMCTRL_SHELL_PROMPT:
+QuoteForShellPrompt(Cmd->OutputStr);
 break;
 
 
