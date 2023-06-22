@@ -1,6 +1,6 @@
 #include "libUseful-4/libUseful.h"
 
-#define VERSION "1.1"
+#define VERSION "1.2"
 
 #define TERMCTRL_PRINT 0
 #define TERMCTRL_TITLE 1
@@ -86,16 +86,15 @@ if (argc > 0)
 		else if (strcmp(p_arg, "-stderr")==0) Cmd->flags |= TERMCTRL_STDERR;
 		else if (strcmp(p_arg, "-stdout")==0) Cmd->flags |= TERMCTRL_STDOUT;
 		else if (strcmp(p_arg, "-clear")==0) Cmd->flags |= TERMCTRL_CLEAR;
-		else if (strcmp(p_arg, "-title")==0) Cmd->cmd |= TERMCTRL_TITLE;
-		else if (strcmp(p_arg, "-getch")==0) Cmd->cmd |= TERMCTRL_GETCH;
-		else if (strcmp(p_arg, "-ask")==0) Cmd->cmd |= TERMCTRL_PROMPT;
-		else if (strcmp(p_arg, "-prompt")==0) Cmd->cmd |= TERMCTRL_PROMPT;
-		else if (strcmp(p_arg, "-password")==0) Cmd->cmd |= TERMCTRL_PASSWD;
-		else if (strcmp(p_arg, "-ps")==0) Cmd->cmd |= TERMCTRL_SHELL_PROMPT;
-		else if (strcmp(p_arg, "-version")==0) Cmd->cmd |= TERMCTRL_VERSION;
-		else if (strcmp(p_arg, "--version")==0) Cmd->cmd |= TERMCTRL_VERSION;
-		else if (strcmp(p_arg, "-help")==0) Cmd->cmd |= TERMCTRL_HELP;
-		else if (strcmp(p_arg, "--help")==0) Cmd->cmd |= TERMCTRL_HELP;
+		else if (strcmp(p_arg, "-title")==0) Cmd->cmd = TERMCTRL_TITLE;
+		else if (strcmp(p_arg, "-getch")==0) Cmd->cmd = TERMCTRL_GETCH;
+		else if (strcmp(p_arg, "-ask")==0) Cmd->cmd = TERMCTRL_PROMPT;
+		else if (strcmp(p_arg, "-prompt")==0) Cmd->cmd = TERMCTRL_PROMPT;
+		else if (strcmp(p_arg, "-password")==0) Cmd->cmd = TERMCTRL_PASSWD;
+		else if (strcmp(p_arg, "-version")==0) Cmd->cmd = TERMCTRL_VERSION;
+		else if (strcmp(p_arg, "--version")==0) Cmd->cmd = TERMCTRL_VERSION;
+		else if (strcmp(p_arg, "-help")==0) Cmd->cmd = TERMCTRL_HELP;
+		else if (strcmp(p_arg, "--help")==0) Cmd->cmd = TERMCTRL_HELP;
 		else if (strcmp(p_arg, "-t")==0)
 		{
 			p_arg=CommandLineNext(Args);
@@ -105,6 +104,16 @@ if (argc > 0)
 		{
 			p_arg=CommandLineNext(Args);
 			Cmd->timeout=atoi(p_arg);
+		}
+		else if (strcmp(p_arg, "-ps")==0) 
+		{
+			Cmd->cmd = TERMCTRL_SHELL_PROMPT;
+			Cmd->flags |= TERMCTRL_STDOUT;
+		}
+		else if (strcmp(p_arg, "-bash")==0) 
+		{
+			Cmd->cmd = TERMCTRL_SHELL_PROMPT;
+			Cmd->flags |= TERMCTRL_STDOUT;
 		}
 		else Cmd->OutputStr=MCatStr(Cmd->OutputStr, p_arg, " ", NULL);
 
@@ -191,7 +200,7 @@ printf("\n");
 
 
 #ifdef HAVE_TERMCONSUMECHAR
-void QuoteForShellPrompt(char *Input)
+void QuoteForShellPrompt(STREAM *Term, char *Input)
 {
 char *Str=NULL, *Output=NULL;
 const char *ptr, *next;
@@ -223,11 +232,32 @@ for (ptr=Str; *ptr != '\0'; ptr++)
 	}
 }
 
-printf("%s\n", Output);
+STREAMWriteLine(Output, Term);
 
 Destroy(Str);
 }
 #endif
+
+
+STREAM *OpenOutput(TCmd *Cmd)
+{
+STREAM *Term=NULL;
+
+if (Cmd->cmd == TERMCTRL_SHELL_PROMPT) return(STREAMFromDualFD(0,1));
+
+if (Cmd->flags & (TERMCTRL_STDERR)) Term=STREAMFromDualFD(0,2);
+if ((! Term) && (Cmd->flags & (TERMCTRL_STDOUT))) Term=STREAMFromDualFD(0,1);
+if (! Term) Term=STREAMOpen("/dev/tty", "rw");
+if (! Term) Term=STREAMFromDualFD(0,2);
+
+if (Cmd->timeout > 0) STREAMSetTimeout(Term, Cmd->timeout);
+TerminalInit(Term, TERM_RAWKEYS | TERM_SAVE_ATTRIBS);
+if (Cmd->flags & TERMCTRL_CLEAR) TerminalClear(Term);
+if (Cmd->flags & TERMCTRL_UNICODE) UnicodeSetUTF8(3);
+
+return(Term);
+}
+
 
 
 int main(int argc, char *argv[])
@@ -239,16 +269,7 @@ int ch;
 
 
 Cmd=ParseCommandLine(argc, argv);
-
-if (Cmd->flags & (TERMCTRL_STDERR)) Term=STREAMFromDualFD(0,2);
-if ((! Term) && (Cmd->flags & (TERMCTRL_STDOUT))) Term=STREAMFromDualFD(0,1);
-if (! Term) Term=STREAMOpen("/dev/tty", "rw");
-if (! Term) Term=STREAMFromDualFD(0,2);
-
-if (Cmd->timeout > 0) STREAMSetTimeout(Term, Cmd->timeout);
-TerminalInit(Term, TERM_RAWKEYS | TERM_SAVE_ATTRIBS);
-if (Cmd->flags & TERMCTRL_CLEAR) TerminalClear(Term);
-if (Cmd->flags & TERMCTRL_UNICODE) UnicodeSetUTF8(3);
+Term=OpenOutput(Cmd);
 
 if (Cmd->flags & TERMCTRL_NOSLASH)
 {
@@ -291,7 +312,7 @@ break;
 
 case TERMCTRL_SHELL_PROMPT:
 #ifdef HAVE_TERMCONSUMECHAR
-	QuoteForShellPrompt(Cmd->OutputStr);
+	QuoteForShellPrompt(Term, Cmd->OutputStr);
 #else
 	fprintf(stderr, "ERROR: libUseful version too old to support shell prompt option\n");
 #endif
@@ -305,7 +326,7 @@ if (! (Cmd->flags & TERMCTRL_NONEWLINE)) TerminalPutStr("\n", Term);
 break;
 }
 
-TerminalReset(Term);
+if (Cmd->cmd != TERMCTRL_SHELL_PROMPT) TerminalReset(Term);
 
 Destroy(Tempstr);
 }

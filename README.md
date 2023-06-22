@@ -37,6 +37,7 @@ OPTIONS
 -prompt        Write a prompt or message and read the user's reply, returning it on stdout
 -password      Write a prompt or message and read the user's reply without echoing that to the screen. Return the reply on stdout
 -ps            Write text with quoting suitable to use in a bash/shell prompt
+-bash          Write text with quoting suitable to use in a bash/shell prompt
 -timeout <cs>  Wait 'cs' centi-seconds for a reply (mostly useful with 'getch' to await a keypress.
 -t <cs>        Wait 'cs' centi-seconds for a reply (mostly useful with 'getch' to await a keypress.
 -u             Enable unicode support
